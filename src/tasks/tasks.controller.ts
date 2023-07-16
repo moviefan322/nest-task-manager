@@ -33,10 +33,10 @@ export class TasksController {
     return this.tasksService.getTaskbyId(id);
   }
 
-  // @Post()
-  // createTask(@Body() createTaskDto: CreateTaskDto): Task {
-  //   return this.tasksService.createTask(createTaskDto);
-  // }
+  @Post()
+  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
+    return this.tasksService.createTask(createTaskDto);
+  }
 
   // @Patch('/:id/status')
   // updateTaskStatus(
@@ -47,8 +47,8 @@ export class TasksController {
   //   return this.tasksService.updateTaskStatus(id, status);
   // }
 
-  // @Delete('/:id')
-  // deleteTask(@Param('id') id: string): void {
-  //   return this.tasksService.deleteTask(id);
-  // }
+  @Delete('/:id')
+  async deleteTask(@Param('id') id: string): Promise<void> {
+    return this.tasksService.deleteTask(id);
+  }
 }
