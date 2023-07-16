@@ -12,27 +12,25 @@ export class TasksService {
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
   ) {}
-  // getAllTasks(): Task[] {
-  //   return this.tasks;
-  // }
-  // getTasksWithFilters(filterDto: GetTasksFilterDto): Task[] {
-  //   const { status, search } = filterDto;
-  //   // define a temporary array to hold the result
-  //   let tasks = this.getAllTasks();
-  //   // do something with status
-  //   if (status) {
-  //     tasks = tasks.filter((task) => task.status === status);
-  //   }
-  //   // do something with search
-  //   if (search) {
-  //     tasks = tasks.filter(
-  //       (task) =>
-  //         task.title.includes(search) || task.description.includes(search),
-  //     );
-  //   }
-  //   // return the result
-  //   return tasks;
-  // }
+
+  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+    const { status, search } = filterDto;
+    const query = this.taskRepository.createQueryBuilder('task');
+
+    if (status) {
+      query.andWhere('task.status = :status', { status });
+    }
+
+    if (search) {
+      query.andWhere(
+        '(LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search))',
+        { search: `%${search}%` },
+      );
+    }
+
+    const tasks = await query.getMany();
+    return tasks;
+  }
 
   async getTaskbyId(id: string): Promise<Task> {
     const found = await this.taskRepository.findOne({ where: { id: id } });
@@ -52,18 +50,19 @@ export class TasksService {
     return task;
   }
 
-  // updateTaskStatus(id: string, status: TaskStatus): Task {
-  //   const task = this.getTaskById(id);
-  //   task.status = status;
-  //   return task;
-  // }
+  async updateTaskStatus(id: string, status: TaskStatus): Promise<Task> {
+    const task = await this.getTaskbyId(id);
 
+    task.status = status;
+    await this.taskRepository.save(task);
+
+    return task;
+  }
 
   async deleteTask(id: string): Promise<void> {
     const result = await this.taskRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Task with ID ${id} not found.`);
     }
-    console.log(result)
   }
 }
