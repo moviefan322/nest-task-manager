@@ -12,5 +12,6 @@ async function bootstrap() {
   const PORT = 3000;
   await app.listen(PORT);
   logger.log(`Application listening on port ${PORT}`);
+  logger.log(`Running in ${process.env.STAGE} mode`);
 }
 bootstrap();
